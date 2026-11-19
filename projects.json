@@ -1,0 +1,24 @@
+{
+  "owner": "vicboraco",
+  "min_severity": "MEDIUM",
+  "report_artifact_url": "https://claude.ai/artifact/6eZzgyB4DVwqEdMLRmd7an",
+  "repos": [
+    {"name": "tracpeak-greenfield", "visibility": "private"},
+    {"name": "torneospro", "visibility": "private"},
+    {"name": "rejovi-admin", "visibility": "private"},
+    {"name": "piixan-ai-coupons", "visibility": "private"},
+    {"name": "axelo", "visibility": "private"},
+    {"name": "piixan-bi", "visibility": "private"},
+    {"name": "mintlify-docs", "visibility": "public"},
+    {"name": "preguntale-a-licha", "visibility": "private"},
+    {"name": "docs", "visibility": "public"},
+    {"name": "piixan-landing", "visibility": "private"},
+    {"name": "torneospro-web", "visibility": "private"},
+    {"name": "coach-pro", "visibility": "private"}
+  ],
+  "supabase_projects": [
+    {"name": "Torneos-Pro", "id": "rkxszbjknrqcflenztxh"},
+    {"name": "Coach Pro", "id": "vfllcuqcqgcmfuncyeoh", "note": "INACTIVE - skipped unless reactivated"}
+  ],
+  "local_folders": []
+}
