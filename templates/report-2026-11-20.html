@@ -68,124 +68,36 @@ footer{color:var(--muted);font-size:.88rem;display:flex;flex-direction:column;ga
 .copy:hover{filter:brightness(1.08)}
 .copy:focus-visible,.prompt-text:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .p-done{color:var(--low);background:var(--low-bg)} .p-prog{color:var(--accent);background:var(--code-bg)}
-.delta{font:500 .8rem var(--mono);color:var(--muted)}
+.delta{font:500 .8rem var(--mono);color:var(--muted);white-space:nowrap}
 .proj.done{border-left-color:var(--low)} .proj.prog{border-left-color:var(--accent)}
+.done-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
+.done-list .proj{padding:16px}
 .copy.done{background:var(--low)}
 @media (max-width:560px){.finding{grid-template-columns:1fr}.finding .k{padding-top:6px}}
 </style>
 <div class="wrap">
 <header>
-  <span class="eyebrow">vuln-watch · revisión de seguimiento</span>
+  <span class="eyebrow">vuln-watch · segunda revisión de seguimiento</span>
   <h1>Boletín de vulnerabilidades</h1>
-  <div class="meta">
-    <span>20 nov 2026 · comparado con el 19 nov</span>
-    <span>Ramas revisadas: main (producción) y dev</span>
-    <span>Umbral: CVSS ≥ 4.0</span>
-    <span>Fuentes: OSV.dev, NVD, CVE.org, CISA KEV</span>
-  </div>
+  <div class="meta"><span>20 nov 2026, 08:50 CDMX</span><span>Ramas main y dev de los 12 repos · Supabase Torneos-Pro</span><span>Umbral: CVSS ≥ 4.0</span><span>Fuentes: OSV.dev, NVD, CVE.org, CISA KEV</span></div>
 </header>
-
 <section class="verdict">
   <span class="eyebrow">Avance</span>
-  <div class="cve">4 de 10 proyectos resueltos · 1 en curso · 5 sin empezar · 2 servidores nuevos por revisar</div>
-  <p><strong>Ya no queda ningún riesgo crítico en producción en torneospro, tracpeak-greenfield, axelo ni rejovi-admin.</strong> piixan-bi está corregido en <code>dev</code>, pero producción sigue con las versiones vulnerables. Los otros 5 repos no tienen cambios en GitHub.</p>
-  <p><strong>Nuevo:</strong> los servidores de <strong>torneospro</strong> y <strong>axelo</strong> también usan NGINX con Certbot. Puede aplicarles <strong>CVE-2026-123007</strong>, el que pediste revisar, si usan HTTP/2, y casi seguro CVE-2026-118899. Ayer no aparecieron porque su configuración no está en los repos.</p>
+  <div class="cve">6 repos y 2 servidores resueltos · 4 repos sin empezar · CVE-2026-123007 descartado en los 3 servidores</div>
+  <p><strong>Ya no queda ningún riesgo crítico en producción.</strong> tracpeak-greenfield, piixan-bi, piixan-ai-coupons, torneospro, axelo y rejovi-admin están corregidos, y los tres servidores con NGINX están en <code>1.24.0-2ubuntu7.20</code>. <strong>CVE-2026-123007 no aplica en ninguno</strong>: ninguno usa HTTP/2.</p>
+  <p><strong>Pendiente:</strong> preguntale-a-licha, torneospro-web, coach-pro y piixan-landing siguen sin cambios en GitHub. Falta además confirmar 4 CVE medios de NGINX que encontró la corrida programada de las 6:44.</p>
+  <p><strong>La revisión programada no está funcionando bien.</strong> Corrió, pero la sesión que abre no tiene acceso a los repos privados ni al conector de Supabase, así que solo pudo revisar <code>docs</code> y <code>mintlify-docs</code>. Este informe reemplaza al que publicó.</p>
 </section>
-
 <section style="display:flex;flex-direction:column;gap:12px">
   <h2>Resumen por proyecto</h2>
-  <div class="counts"><span class="pill p-done">4 resueltos</span><span class="pill p-prog">1 en curso</span><span class="pill p-high">3 altos sin empezar</span><span class="pill p-med">2 medios sin empezar</span><span class="pill p-tbd">2 servidores por confirmar</span></div>
-  <div class="tbl"><table>
-    <thead><tr><th>Proyecto</th><th>Ayer</th><th>Hoy</th><th>Avisos (producción)</th><th>Siguiente paso</th></tr></thead>
-    <tbody>
-      <tr><td><a href="#tp-nginx">NGINX torneospro</a></td><td>no revisado</td><td><span class="pill p-tbd">por confirmar</span></td><td class="delta">—</td><td>Diagnóstico en el servidor</td></tr>
-      <tr><td><a href="#axelo-nginx">NGINX axelo</a></td><td>no revisado</td><td><span class="pill p-tbd">por confirmar</span></td><td class="delta">—</td><td>Diagnóstico en el servidor</td></tr>
-      <tr><td><a href="#piixan-bi">piixan-bi</a></td><td><span class="pill p-crit">crítico</span></td><td><span class="pill p-prog">en curso</span></td><td class="delta">155 → 159 (dev: 2)</td><td>Release de dev a producción</td></tr>
-      <tr><td><a href="#licha">preguntale-a-licha</a></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td class="delta">39 → 43</td><td>Correr el prompt</td></tr>
-      <tr><td><a href="#torneospro-web">torneospro-web</a></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td class="delta">55 → 55</td><td>Correr el prompt</td></tr>
-      <tr><td><a href="#coach-pro">coach-pro</a></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td class="delta">51 → 55</td><td>Correr el prompt</td></tr>
-      <tr><td><a href="#coupons">piixan-ai-coupons</a></td><td><span class="pill p-med">medio</span></td><td><span class="pill p-med">medio</span></td><td class="delta">22 → 22</td><td>Correr el prompt</td></tr>
-      <tr><td><a href="#landing">piixan-landing</a></td><td><span class="pill p-med">medio</span></td><td><span class="pill p-med">medio</span></td><td class="delta">52 → 56</td><td>Correr el prompt</td></tr>
-      <tr><td><a href="#tracpeak">tracpeak-greenfield</a></td><td><span class="pill p-crit">crítico</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">254 → 19</td><td>Seguimiento menor (otel)</td></tr>
-      <tr><td><a href="#torneospro">torneospro</a></td><td><span class="pill p-crit">crítico</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">85 → 2*</td><td>Nada (*falso positivo)</td></tr>
-      <tr><td><a href="#axelo">axelo</a></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">77 → 0</td><td>Ver NGINX de su servidor</td></tr>
-      <tr><td><a href="#rejovi">rejovi-admin</a></td><td><span class="pill p-tbd">por confirmar</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">0 → 0</td><td>Nada</td></tr>
-      <tr><td>docs, mintlify-docs</td><td><span class="pill p-ok">sin hallazgos</span></td><td><span class="pill p-ok">sin hallazgos</span></td><td class="delta">0</td><td>Nada</td></tr>
-    </tbody>
-  </table></div>
-  <p class="note">Los conteos suman cada aviso por paquete, versión y archivo (un mismo CVE en dos lockfiles cuenta dos veces). Sirven para comparar entre días, no como número absoluto de vulnerabilidades.</p>
+  <div class="counts"><span class="pill p-done">6 repos y 2 servidores resueltos</span><span class="pill p-high">3 altos sin empezar</span><span class="pill p-med">1 medio sin empezar</span><span class="pill p-tbd">1 verificación de NGINX</span></div>
+  <div class="tbl"><table><thead><tr><th>Proyecto</th><th>19 nov</th><th>20 nov (mañana)</th><th>Ahora</th><th>Avisos en producción</th><th>Siguiente paso</th></tr></thead><tbody><tr><td><a href="#licha">preguntale-a-licha</a></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td class="delta">39 → 43 → 43</td><td>Correr el prompt</td></tr><tr><td><a href="#torneospro-web">torneospro-web</a></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td class="delta">55 → 55 → 55</td><td>Correr el prompt</td></tr><tr><td><a href="#coach-pro">coach-pro</a></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td class="delta">51 → 55 → 55</td><td>Correr el prompt</td></tr><tr><td><a href="#landing">piixan-landing</a></td><td><span class="pill p-med">medio</span></td><td><span class="pill p-med">medio</span></td><td><span class="pill p-med">medio</span></td><td class="delta">52 → 56 → 56</td><td>Correr el prompt</td></tr><tr><td><a href="#nginx-medios">NGINX: CVE medios</a></td><td>—</td><td>—</td><td><span class="pill p-tbd">por confirmar</span></td><td class="delta">—</td><td>Verificar en los 3 servidores</td></tr><tr><td>tracpeak-greenfield</td><td><span class="pill p-crit">crítico</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">254 → 19 → 0</td><td>Nada</td></tr><tr><td>piixan-bi</td><td><span class="pill p-crit">crítico</span></td><td><span class="pill p-prog">en curso</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">155 → 159 → 2*</td><td>Nada (*no aplican)</td></tr><tr><td>piixan-ai-coupons</td><td><span class="pill p-med">medio</span></td><td><span class="pill p-med">medio</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">22 → 22 → 0</td><td>Nada</td></tr><tr><td>torneospro</td><td><span class="pill p-crit">crítico</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">85 → 2 → 2*</td><td>Nada (*falso positivo)</td></tr><tr><td>NGINX de torneospro</td><td>no revisado</td><td><span class="pill p-tbd">por confirmar</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">—</td><td>Nada</td></tr><tr><td>NGINX de axelo</td><td>no revisado</td><td><span class="pill p-tbd">por confirmar</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">—</td><td>Nada</td></tr><tr><td>axelo</td><td><span class="pill p-high">alto</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">77 → 0 → 0</td><td>Nada</td></tr><tr><td>rejovi-admin</td><td><span class="pill p-tbd">por confirmar</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">0 → 0 → 0</td><td>Nada</td></tr><tr><td>docs, mintlify-docs</td><td><span class="pill p-ok">sin hallazgos</span></td><td><span class="pill p-ok">sin hallazgos</span></td><td><span class="pill p-ok">sin hallazgos</span></td><td class="delta">0</td><td>Nada</td></tr></tbody></table></div>
+  <p class="note">Los avisos se cuentan por paquete, versión y archivo, para comparar entre revisiones; no son el número de vulnerabilidades distintas.</p>
 </section>
-
 <section style="display:flex;flex-direction:column;gap:16px">
-<h2>Detalle por proyecto</h2>
-<p class="note">Primero lo pendiente. Cada tarjeta trae el prompt listo para pegar en una sesión de Claude Code abierta en ese repo.</p>
-<article class="proj tbd" id="tp-nginx">
-  <div class="proj-head"><h3>Servidor NGINX de torneospro</h3><span class="pill p-tbd">por confirmar</span><span class="stack">143.198.106.161 · nuevo hallazgo</span></div>
-  <div class="finding"><div class="k">Hallazgo</div><div>Ayer el informe solo vio NGINX en el repo de rejovi-admin. Al leer los CLAUDE.md de cada proyecto aparecieron <strong>dos servidores más con NGINX y Certbot</strong>. El de Torneos Pro sirve <code>app.torneospro.mx</code>, el wildcard <code>*.torneospro.mx</code>, staging y la landing. Su configuración no está en el repo, así que no sé si usa <code>http2</code>: si lo usa, le aplica <strong>CVE-2026-123007</strong>, el CVE que pediste revisar, y CVE-2026-123633. CVE-2026-118899 (TLS 1.3) aplica casi seguro.</div><div class="k">Ojo</div><div>PENDIENTES.md marca un torneo hasta el sábado 21-nov a las 14:00. El prompt pide diagnóstico primero y esperar tu OK antes del <code>reload</code>.</div></div>
-  <div class="prompt">
-    <div class="prompt-head"><span class="k">Prompt de diagnóstico y parche</span><button type="button" class="copy" id="copy-tp-nginx" data-target="prompt-tp-nginx">Copiar prompt</button></div>
-    <pre class="prompt-text" id="prompt-tp-nginx" tabindex="0">Tarea: revisar y parchar el NGINX del servidor de Torneos Pro (informe vuln-watch del 20-nov-2026). Es mantenimiento de servidor; no cambies código de la app. El servidor sirve producción y staging: primero solo lectura, y espera mi confirmación antes de cambiar nada.
-
-Contexto: el 18-nov F5 publicó varios CVE de NGINX. Los que pueden aplicar aquí (nginx con Certbot, wildcard *.torneospro.mx, proxy a Next en :3000/:3002):
-- CVE-2026-123007 (CVSS 9.2): heap overflow con HTTP/2 → aplica si algún listen tiene http2 o hay &quot;http2 on;&quot;.
-- CVE-2026-123633 (CVSS 9.2): use-after-free con HTTP/2 + proxy_pass.
-- CVE-2026-118899 (CVSS 8.7): denegación de servicio con &quot;listen ... ssl&quot; y TLS 1.3 (Certbot activa TLSv1.3 por defecto).
-- CVE-2026-121810 (HTTP/3) y CVE-2026-123634 (SSI/mirror con variables en el proxy): confirmar que no aplican.
-Corregido en NGINX 1.30.7 / 1.31.9; en Ubuntu, por el parche de seguridad de la distribución (en rejovi-admin fue 1.24.0-2ubuntu7.19 → 7.20).
-
-Pasos (ssh -i ~/.ssh/do_torneos root@143.198.106.161):
-1. Solo lectura: nginx -v; lsb_release -a; grep -rn &quot;http2\|http3\|quic\|ssi on\|mirror&quot; /etc/nginx/; grep -rn ssl_protocols /etc/nginx/ /etc/letsencrypt/options-ssl-nginx.conf; apt list --upgradable 2&gt;/dev/null | grep -i nginx; apt changelog nginx 2&gt;/dev/null | head -30 (busca los CVE).
-2. Muéstrame qué CVE aplican, con la evidencia (archivo:línea), y ESPERA mi OK. Ojo: hay un torneo hasta el sábado 21-nov 14:00 (PENDIENTES.md); si el reload puede cortar conexiones, proponme hacerlo después.
-3. Con mi OK: apt update &amp;&amp; apt install --only-upgrade nginx nginx-common &amp;&amp; nginx -t &amp;&amp; systemctl reload nginx. Si Ubuntu aún no tiene el parche y aplica http2: quita http2 de los listen (sustituir &quot;listen 443 ssl http2;&quot; por &quot;listen 443 ssl;&quot; o borrar &quot;http2 on;&quot;) en torneos-bi, torneos-staging y torneospro.mx; nginx -t; reload.
-4. Verifica: curl -sI --http2 https://app.torneospro.mx (debe responder; con http2 quitado, por HTTP/1.1), una página de un tenant (*.torneospro.mx), dev.torneospro.mx, la landing, y openssl s_client -connect app.torneospro.mx:443 -tls1_3 &lt;/dev/null.
-5. Documenta en README.md (Deployment → Nginx configs) y PENDIENTES.md: versión antes y después, y la tarea de volver a activar http2 si se quitó. Commit &quot;docs(ops): ...&quot; en dev y push.
-
-Entrega: versión de NGINX antes y después, qué CVE aplicaban y por qué, cambios hechos y resultado de las verificaciones.</pre>
-  </div>
-</article>
-<article class="proj tbd" id="axelo-nginx">
-  <div class="proj-head"><h3>Servidor NGINX de axelo</h3><span class="pill p-tbd">por confirmar</span><span class="stack">212.28.185.245 · Ubuntu 24.04 · nuevo hallazgo</span></div>
-  <div class="finding"><div class="k">Hallazgo</div><div>El README de axelo indica que NGINX termina TLS con Certbot y hace proxy al gateway. Es el mismo caso: CVE-2026-118899 probable, y CVE-2026-123007 / 123633 si usa <code>http2</code>. En Ubuntu 24.04 la corrección es <code>nginx 1.24.0-2ubuntu7.20</code>, la misma que ya se aplicó en rejovi-admin.</div></div>
-  <div class="prompt">
-    <div class="prompt-head"><span class="k">Prompt de diagnóstico y parche</span><button type="button" class="copy" id="copy-axelo-nginx" data-target="prompt-axelo-nginx">Copiar prompt</button></div>
-    <pre class="prompt-text" id="prompt-axelo-nginx" tabindex="0">Tarea: revisar y parchar el NGINX del VPS de Axelo (informe vuln-watch del 20-nov-2026). No cambies código. Primero solo lectura y espera mi OK antes de cambiar nada: este servidor manda email, WhatsApp y Wallet de todos los clientes.
-
-Contexto: según README.md, NGINX termina TLS con Certbot y hace proxy a localhost:8080 (/etc/nginx/sites-available/comms), en Ubuntu 24.04. CVE de NGINX del 18-nov que pueden aplicar: CVE-2026-123007 y CVE-2026-123633 (HTTP/2, CVSS 9.2), CVE-2026-118899 (listen ssl + TLS 1.3, CVSS 8.7). Confirmar que no aplican CVE-2026-121810 (HTTP/3), CVE-2026-113425 (mail proxy) ni CVE-2026-123634 (SSI/mirror). En Ubuntu 24.04 el parche llegó como nginx 1.24.0-2ubuntu7.20.
-
-Pasos (ssh -i ~/.ssh/comms_deploy root@212.28.185.245):
-1. Solo lectura: nginx -v; grep -rn &quot;http2\|http3\|quic\|mail {\|ssi on\|mirror&quot; /etc/nginx/; grep -rn ssl_protocols /etc/nginx/ /etc/letsencrypt/options-ssl-nginx.conf; apt list --upgradable 2&gt;/dev/null | grep -i nginx.
-2. Muéstrame el diagnóstico y ESPERA mi OK.
-3. Con mi OK: apt update &amp;&amp; apt install --only-upgrade nginx nginx-common &amp;&amp; nginx -t &amp;&amp; systemctl reload nginx. Debe quedar en 1.24.0-2ubuntu7.20 o posterior.
-4. Verifica: curl -s https://api.axelo.mx/health (o el endpoint de salud que exista), que los webhooks de Meta sigan entrando (journalctl -u gateway --since &quot;10 min ago&quot;) y que no hay errores en /var/log/nginx/error.log.
-5. Actualiza README.md (Deployment → Nginx) y PENDIENTES.md con la versión y la fecha; commit &quot;docs: ...&quot; y push según CLAUDE.md.
-
-Entrega: versión antes y después, qué CVE aplicaban y resultado de las verificaciones.</pre>
-  </div>
-</article>
-<article class="proj prog" id="piixan-bi">
-  <div class="proj-head"><h3>piixan-bi</h3><span class="pill p-prog">en curso</span><span class="stack">antes: crítico · dev listo, producción pendiente</span></div>
-  <div class="finding"><div class="k">Avance</div><div>En <code>dev</code> pasó de 155 avisos a 2: Next 16.4.6, next-auth 4.24.15, axios 1.20, python-jose 3.5.0 y el resto del backend. <strong>Producción (<code>main</code>) sigue igual que ayer</strong>: Next 16.1.6, next-auth 4.24.13, python-jose 3.3.0, más 4 avisos nuevos de Next que afectan a 16.1.6.</div><div class="k">Restante</div><div>OSV marca python-jose 3.5.0 con CVE-2024-33663 (confusión de algoritmos con llaves DER), sin versión corregida. No aplica: <code>nextauth_jwt.py</code> solo usa <code>jwe.decrypt</code> con llave simétrica, y el fallo es de verificación JWS.</div><div class="k">Falta</div><div>Merge a <code>main</code> y deploy a producción.</div></div>
-  <div class="prompt">
-    <div class="prompt-head"><span class="k">Prompt de release a producción</span><button type="button" class="copy" id="copy-piixan-bi-2" data-target="prompt-piixan-bi-2">Copiar prompt</button></div>
-    <pre class="prompt-text" id="prompt-piixan-bi-2" tabindex="0">Tarea: el parche de seguridad (informe vuln-watch del 19-nov-2026) está en dev y verificado en staging, pero main/producción sigue con Next 16.1.6, next-auth 4.24.13, python-jose 3.3.0 y python 3.10. Prepara el release a producción siguiendo CLAUDE.md.
-
-1. Confirma en dev: frontend con next 16.4.6, next-auth 4.24.15, axios ≥ 1.20.0; backend con python-jose 3.5.0, cryptography ≥ 46.0.6, fastapi ≥ 0.115 y la imagen python:3.12-slim-bookworm. Corre los tests (en especial test_nextauth_jwt.py y la regresión hash) sobre dev.
-2. Revisa el estado de staging (dev.piixan.ai): login con Google, Dashboard, un run-now de un motor y que beat siga encolando (docker logs piixan_beat_staging --since 10m | grep -E &#x27;Acquired lock|Sending due task&#x27;).
-3. Lista lo que entra al merge (git log --oneline main..dev) y avísame si entra algo más que el parche.
-4. Después ESPERA a que yo diga &quot;merge a main&quot; y &quot;deploy a prod&quot;. Sigue el procedimiento de CLAUDE.md (advertencia antes de deploy-prod.sh, el lock de RAM, nunca omitir el override).
-5. Tras el deploy, las mismas verificaciones en app.piixan.ai y en piixan_beat_prod.
-
-Nota: OSV sigue marcando python-jose 3.5.0 con CVE-2024-33663 (confusión de algoritmos con llaves DER/ECDSA), sin versión corregida. Afecta a la verificación JWS; core/auth/nextauth_jwt.py solo usa jwe.decrypt con una llave simétrica, así que no aplica. Si quieres eliminar el aviso, la alternativa es migrar ese módulo a joserfc; propónmelo aparte, no en este release.
-
-Entrega: diff de versiones main → dev, resultado de los tests y de las verificaciones de staging, y luego de producción.</pre>
-  </div>
-</article>
-<article class="proj high" id="licha">
-  <div class="proj-head"><h3>preguntale-a-licha</h3><span class="pill p-high">alto</span><span class="stack">sin cambios en GitHub</span></div>
-  <div class="finding"><div class="k">Estado</div><div>Next 16.3.4, node-forge 1.4.0, sharp 0.35.4 y shell-quote siguen igual. Desde ayer se sumaron 4 avisos medios de Next (GHSA-7qx7-33qx-rqx2, GHSA-f3mh-rxg3-f5g2, GHSA-pc58-hwjq-p385, GHSA-rhh4-g77r-r9qj) que 16.4.6 ya corrige.</div></div>
-  <div class="prompt">
-    <div class="prompt-head"><span class="k">Prompt de parche (mismo de ayer)</span><button type="button" class="copy" id="copy-licha" data-target="prompt-licha">Copiar prompt</button></div>
-    <pre class="prompt-text" id="prompt-licha" tabindex="0">Tarea: parche de seguridad (informe vuln-watch del 19-nov-2026). No cambies el producto, el prompt ni el contrato. No hagas git push a la rama que despliega Vercel hasta que yo lo diga (el push despliega el proxy).
+  <h2>Pendiente</h2>
+  <p class="note">Cada tarjeta trae el prompt listo para pegar en una sesión de Claude Code abierta en ese repo.</p>
+  <article class="proj high" id="licha"><div class="proj-head"><h3>preguntale-a-licha</h3><span class="pill p-high">alto</span><span class="stack">sin cambios en GitHub · 43 avisos</span></div><div class="finding"><div class="k">Estado</div><div>Next 16.3.4, node-forge 1.4.0, sharp 0.35.4 y shell-quote siguen igual. Además, desde el 19-nov se publicaron 4 avisos medios de Next (GHSA-7qx7-33qx-rqx2, GHSA-f3mh-rxg3-f5g2, GHSA-pc58-hwjq-p385, GHSA-rhh4-g77r-r9qj) que <code>next@16.4.6</code> ya corrige.</div></div><div class="prompt"><div class="prompt-head"><span class="k">Prompt de parche</span><button type="button" class="copy" id="copy-licha" data-target="prompt-licha">Copiar prompt</button></div><pre class="prompt-text" id="prompt-licha" tabindex="0">Tarea: parche de seguridad (informe vuln-watch del 19-nov-2026). No cambies el producto, el prompt ni el contrato. No hagas git push a la rama que despliega Vercel hasta que yo lo diga (el push despliega el proxy).
 
 Contexto verificado:
 - apps/proxy: next 16.3.4 (12 avisos). El RCE de &quot;use cache&quot; (GHSA-673q-mjm6-r5xr) no aplica (no hay funciones use cache), pero el resto sí → 16.4.6. sharp 0.35.4 → 0.35.5; node-forge 1.4.0 (verificación de firmas, 15 avisos, producción) → 1.4.3; compression 1.8.1 → 1.8.2; zod 3.25.76 / 4.5.4 → zod 4 ≥ 4.6.6 (si alguien usa zod 3, no lo migres de mayor sin avisarme).
@@ -198,15 +110,9 @@ Pasos:
 3. Verifica: npm test, npm run typecheck, build del proxy (cd apps/proxy &amp;&amp; npx next build). Levanta npm run proxy y corre npm run evals para confirmar que /api/consultar responde igual.
 4. Commit &quot;fix(seguridad): ...&quot; y avísame antes de push.
 
-Entrega: tabla paquete → antes → después, resultado de test, typecheck, build y evals.</pre>
-  </div>
+Entrega: tabla paquete → antes → después, resultado de test, typecheck, build y evals.</pre></div>
 </article>
-<article class="proj high" id="torneospro-web">
-  <div class="proj-head"><h3>torneospro-web</h3><span class="pill p-high">alto</span><span class="stack">sin cambios en GitHub</span></div>
-  <div class="finding"><div class="k">Estado</div><div>Astro 4.16.19 sin cambios. No hay rama <code>fix/seguridad-astro</code> en GitHub: si la migración está en tu equipo sin push, no la puedo ver.</div></div>
-  <div class="prompt">
-    <div class="prompt-head"><span class="k">Prompt de parche (mismo de ayer)</span><button type="button" class="copy" id="copy-torneospro-web" data-target="prompt-torneospro-web">Copiar prompt</button></div>
-    <pre class="prompt-text" id="prompt-torneospro-web" tabindex="0">Tarea: parche de seguridad (informe vuln-watch del 19-nov-2026): migrar Astro 4.16.19 → ≥ 7.2.8, que corrige 15 avisos, incluido un RCE al optimizar AVIF (GHSA-26w7-cxv4-gfx2). El sitio es estático, una landing, y no usa astro:assets, así que esa vía no es alcanzable hoy; la migración es preventiva.
+<article class="proj high" id="torneospro-web"><div class="proj-head"><h3>torneospro-web</h3><span class="pill p-high">alto</span><span class="stack">sin cambios en GitHub · 55 avisos</span></div><div class="finding"><div class="k">Estado</div><div>Astro 4.16.19 sin cambios y sin rama de migración en GitHub.</div><div class="k">Nuevo</div><div><code>parse5</code> 7.3.0 (CVE-2026-133245, CVSS 8.7, caída con dos surrogates bajos seguidos; corregido en 8.1.1) llega por el pipeline de HTML de Astro. Como el sitio es estático, solo se ejecuta al compilar: riesgo bajo. La migración a Astro 7 lo actualiza.</div></div><div class="prompt"><div class="prompt-head"><span class="k">Prompt de parche</span><button type="button" class="copy" id="copy-torneospro-web" data-target="prompt-torneospro-web">Copiar prompt</button></div><pre class="prompt-text" id="prompt-torneospro-web" tabindex="0">Tarea: parche de seguridad (informe vuln-watch del 19-nov-2026): migrar Astro 4.16.19 → ≥ 7.2.8, que corrige 15 avisos, incluido un RCE al optimizar AVIF (GHSA-26w7-cxv4-gfx2). El sitio es estático, una landing, y no usa astro:assets, así que esa vía no es alcanzable hoy; la migración es preventiva.
 
 También afectados: devalue 5.7.0 → 5.9.3, vite 5.4.21 → ≥ 6.4.4 (lo trae Astro), sharp 0.33.5 → 0.35.5, js-yaml 3.14.2 / 4.1.1, zod 3.25.76, postcss, nanoid, esbuild 0.21.5.
 
@@ -217,15 +123,9 @@ Pasos:
 4. npm ls devalue vite sharp js-yaml zod; npm audit --omit=dev.
 5. Commit y deja la rama lista; no hagas merge ni despliegues.
 
-Entrega: versión final de Astro y de las integraciones, cambios de configuración, diferencias visuales (si las hay) y salida de npm audit.</pre>
-  </div>
+Entrega: versión final de Astro y de las integraciones, cambios de configuración, diferencias visuales (si las hay) y salida de npm audit.</pre></div>
 </article>
-<article class="proj high" id="coach-pro">
-  <div class="proj-head"><h3>coach-pro</h3><span class="pill p-high">alto</span><span class="stack">sin cambios en GitHub</span></div>
-  <div class="finding"><div class="k">Estado</div><div>Next 16.2.2 sin cambios, más los mismos 4 avisos nuevos de Next.</div></div>
-  <div class="prompt">
-    <div class="prompt-head"><span class="k">Prompt de parche (mismo de ayer)</span><button type="button" class="copy" id="copy-coach-pro" data-target="prompt-coach-pro">Copiar prompt</button></div>
-    <pre class="prompt-text" id="prompt-coach-pro" tabindex="0">Tarea: parche de seguridad (informe vuln-watch del 19-nov-2026). Sigue CLAUDE.md: es cambio de dependencias, así que actualiza README.md y pendientes.md, y commit + push al terminar (no uses --force ni --no-verify).
+<article class="proj high" id="coach-pro"><div class="proj-head"><h3>coach-pro</h3><span class="pill p-high">alto</span><span class="stack">sin cambios en GitHub · 55 avisos</span></div><div class="finding"><div class="k">Estado</div><div>Next 16.2.2, ws 8.20.0 y sharp 0.34.5 sin cambios. Además, desde el 19-nov se publicaron 4 avisos medios de Next (GHSA-7qx7-33qx-rqx2, GHSA-f3mh-rxg3-f5g2, GHSA-pc58-hwjq-p385, GHSA-rhh4-g77r-r9qj) que <code>next@16.4.6</code> ya corrige.</div></div><div class="prompt"><div class="prompt-head"><span class="k">Prompt de parche</span><button type="button" class="copy" id="copy-coach-pro" data-target="prompt-coach-pro">Copiar prompt</button></div><pre class="prompt-text" id="prompt-coach-pro" tabindex="0">Tarea: parche de seguridad (informe vuln-watch del 19-nov-2026). Sigue CLAUDE.md: es cambio de dependencias, así que actualiza README.md y pendientes.md, y commit + push al terminar (no uses --force ni --no-verify).
 
 Contexto verificado:
 - next 16.2.2 (32 avisos) → 16.4.6. El sitio está en Vercel (vercel.json), así que el optimizador de imágenes corre en Vercel y el RCE de sharp no aplica al runtime, pero sí los demás avisos de Next.
@@ -237,36 +137,9 @@ Pasos:
 2. npm ls next sharp ws postcss nanoid uuid; npm run lint; npm run build. Revisa en local las pantallas que usan imágenes remotas (images.remotePatterns).
 3. README.md (versión de Next) y pendientes.md; commit &quot;fix: ...&quot; y push a la rama activa. Avísame si esa rama despliega directo a producción en Vercel antes de hacer push.
 
-Entrega: tabla paquete → antes → después y resultado de lint y build.</pre>
-  </div>
+Entrega: tabla paquete → antes → después y resultado de lint y build.</pre></div>
 </article>
-<article class="proj med" id="coupons">
-  <div class="proj-head"><h3>piixan-ai-coupons</h3><span class="pill p-med">medio</span><span class="stack">sin cambios en GitHub</span></div>
-  <div class="finding"><div class="k">Estado</div><div>filelock 4.0.3, msgpack 1.2.2 y tinypool (solo en desarrollo) siguen igual.</div></div>
-  <div class="prompt">
-    <div class="prompt-head"><span class="k">Prompt de parche (mismo de ayer)</span><button type="button" class="copy" id="copy-coupons" data-target="prompt-coupons">Copiar prompt</button></div>
-    <pre class="prompt-text" id="prompt-coupons" tabindex="0">Tarea: parche de seguridad (informe vuln-watch del 19-nov-2026). No despliegues.
-
-Contexto verificado:
-- Python (uv.lock): filelock 4.0.3 → ≥ 4.2.1 (11 avisos, alto), msgpack 1.2.2 → 1.2.3 (alto).
-- consola/frontend y sdk/js (solo desarrollo): tinypool 1.1.1 (crítico, CVE-2026-104848/104849, gadget de prototype pollution → RCE, solo vía vitest), vite 7.3.6 → 7.3.7, vitest 3.2.7 → ≥ 4.1.11, @vitest/mocker, source-map-js. El riesgo real es solo en desarrollo/CI.
-
-Pasos:
-1. uv lock --upgrade-package filelock --upgrade-package msgpack &amp;&amp; uv sync; corre la suite de tests de Python.
-2. En consola/frontend y en sdk/js: npm i -D vitest@^4.1.11 vite@7.3.7 (o la 7.x más reciente) &amp;&amp; npm update; npm test; npm run build. Si vitest 4 rompe la configuración, ajústala sin quitar tests.
-3. npm ls tinypool vite vitest en ambos.
-4. Revisa docker-compose*.yml: minio/minio:latest y minio/mc:latest no están fijados; propón versiones fijas (o el digest) sin cambiarlas todavía.
-5. Commit en una rama fix/seguridad y avísame.
-
-Entrega: tabla paquete → antes → después, resultado de tests y la propuesta para fijar las imágenes de MinIO.</pre>
-  </div>
-</article>
-<article class="proj med" id="landing">
-  <div class="proj-head"><h3>piixan-landing</h3><span class="pill p-med">medio</span><span class="stack">sin cambios en GitHub</span></div>
-  <div class="finding"><div class="k">Estado</div><div>Next 16.1.6 sin cambios, más los 4 avisos nuevos de Next.</div></div>
-  <div class="prompt">
-    <div class="prompt-head"><span class="k">Prompt de parche (mismo de ayer)</span><button type="button" class="copy" id="copy-landing" data-target="prompt-landing">Copiar prompt</button></div>
-    <pre class="prompt-text" id="prompt-landing" tabindex="0">Tarea: parche de seguridad (informe vuln-watch del 19-nov-2026). Sitio en Vercel sin backend propio ni imágenes optimizadas; aplican los avisos del servidor de Next (middleware, server actions), no el RCE de sharp.
+<article class="proj med" id="landing"><div class="proj-head"><h3>piixan-landing</h3><span class="pill p-med">medio</span><span class="stack">sin cambios en GitHub · 56 avisos</span></div><div class="finding"><div class="k">Estado</div><div>Next 16.1.6 sin cambios (en Vercel, sin imágenes optimizadas). Además, desde el 19-nov se publicaron 4 avisos medios de Next (GHSA-7qx7-33qx-rqx2, GHSA-f3mh-rxg3-f5g2, GHSA-pc58-hwjq-p385, GHSA-rhh4-g77r-r9qj) que <code>next@16.4.6</code> ya corrige.</div></div><div class="prompt"><div class="prompt-head"><span class="k">Prompt de parche</span><button type="button" class="copy" id="copy-landing" data-target="prompt-landing">Copiar prompt</button></div><pre class="prompt-text" id="prompt-landing" tabindex="0">Tarea: parche de seguridad (informe vuln-watch del 19-nov-2026). Sitio en Vercel sin backend propio ni imágenes optimizadas; aplican los avisos del servidor de Next (middleware, server actions), no el RCE de sharp.
 
 - next 16.1.6 (34 avisos) → 16.4.6; producción: sharp 0.34.5 → 0.35.5, postcss 8.4.31 → 8.5.23, nanoid 3.3.16 → 3.3.18, source-map-js → 1.2.2. Solo en desarrollo: brace-expansion, js-yaml, zod, minimatch.
 
@@ -275,42 +148,42 @@ Pasos:
 2. npm ls next sharp postcss nanoid; npm run lint; npm run build; revisa en local la página y el envío del formulario de contacto (vía Axelo; usa un correo de prueba, no envíes a clientes).
 3. Actualiza README.md si menciona la versión de Next. Commit &quot;fix: ...&quot; y avísame antes de push (el push puede desplegar en Vercel).
 
-Entrega: tabla paquete → antes → después y resultado del build.</pre>
-  </div>
+Entrega: tabla paquete → antes → después y resultado del build.</pre></div>
 </article>
-<article class="proj done" id="tracpeak">
-  <div class="proj-head"><h3>tracpeak-greenfield</h3><span class="pill p-done">resuelto</span><span class="stack">antes: crítico · producción 2bf25ec</span></div>
-  <div class="finding"><div class="k">Avance</div><div>En producción desde el 19-nov (release <code>1bd5f6d → 2bf25ec</code>, login en crocs.zendro.mx verificado). Next 14 → 16.4.6, next-auth beta.32, pgx 5.9.2, x/crypto, grpc, go-jose y jwt corregidos. De 254 avisos a 19.</div><div class="k">Restante</div><div>Ningún aviso crítico ni de producción en la UI. Quedan: <strong>otel v1.45.0</strong>, con un aviso medio publicado después del parche (CVE-2026-128085, corregido en 1.47.0), y dependencias <strong>solo de desarrollo</strong> (brace-expansion, js-yaml, postcss-selector-parser) con riesgo de DoS en build.</div></div>
-  <div class="prompt">
-    <div class="prompt-head"><span class="k">Prompt de seguimiento</span><button type="button" class="copy" id="copy-tracpeak-2" data-target="prompt-tracpeak-2">Copiar prompt</button></div>
-    <pre class="prompt-text" id="prompt-tracpeak-2" tabindex="0">Tarea: seguimiento del parche de seguridad (informe vuln-watch del 20-nov-2026). El parche del 19-nov ya está en producción (2bf25ec). Quedan dos cosas menores. Sigue CLAUDE.md: rama dev; no despliegues hasta que te lo diga.
+<article class="proj tbd" id="nginx-medios"><div class="proj-head"><h3>Servidores NGINX: 4 CVE medios</h3><span class="pill p-tbd">por confirmar</span><span class="stack">rejovi-admin, torneospro, axelo · encontrado por la corrida programada</span></div><div class="finding"><div class="k">Hallazgo</div><div>El mismo boletín de F5 del 18-nov trae 4 CVE medios (CVSS 6.3–6.9) que no estaban en el informe: <strong>CVE-2026-125283</strong> (<code>try_files</code> + <code>alias</code> + <code>map</code>), <strong>CVE-2026-120993</strong> y <strong>CVE-2026-123640</strong> (módulo <code>stream</code>) y <strong>CVE-2026-120967</strong> (<code>ssl_verify_client</code> en <code>stream</code>). Los verifiqué en NVD. Ningún servidor documenta <code>stream {}</code>, así que tres son de riesgo bajo. Falta confirmar si <code>1.24.0-2ubuntu7.20</code> los incluye y si alguna configuración combina <code>try_files</code> con <code>alias</code> y <code>map</code>.</div><div class="k">Ojo</div><div>Al parchar axelo se vio que el parche de nginx llegó por <code>noble-updates</code>, y <code>unattended-upgrades</code> solo instala <code>-security</code>. Los tres servidores pueden quedarse atrás en silencio con el próximo parche.</div></div><div class="prompt"><div class="prompt-head"><span class="k">Prompt de verificación (uno por servidor)</span><button type="button" class="copy" id="copy-nginx-medios" data-target="prompt-nginx-medios">Copiar prompt</button></div><pre class="prompt-text" id="prompt-nginx-medios" tabindex="0">Tarea: confirmar en el servidor que los 4 CVE medios de NGINX del 18-nov-2026 no aplican o ya quedaron cubiertos (informe vuln-watch del 20-nov-2026, segunda revisión). Solo lectura salvo que yo apruebe un cambio.
 
-1. Nuevo aviso publicado después del parche: go.opentelemetry.io/otel v1.45.0 → GHSA-q7gw-24fr-5p69 (CVE-2026-128085, AttributeValueLengthLimit se salta; medio), corregido en v1.47.0. En services/api y services/analytics (y en cualquier otro servicio que use otel): go get go.opentelemetry.io/otel@v1.47.0 go.opentelemetry.io/otel/sdk@v1.47.0 go.opentelemetry.io/otel/trace@v1.47.0 (y los exporters otlp a la misma versión), go mod tidy, go build ./..., go test ./....
-2. Dependencias solo de desarrollo de la UI aún vulnerables (DoS por CPU): brace-expansion 1.1.13 y 2.0.3, js-yaml 4.1.1, postcss-selector-parser 6.1.2. En ui/: npm update brace-expansion js-yaml postcss-selector-parser; si no suben (las fija una dependencia), usa &quot;overrides&quot; (brace-expansion ^1.1.21 / ^2.1.7 según la rama, js-yaml ^4.3.2, postcss-selector-parser ^6.1.5). npm ls de los tres, npm run build.
-3. README.md y pendientes.md; commit &quot;fix(security): ...&quot; en dev y push. Cuando pida deploy, el renglón en CLIENTES.md.
+CVE a revisar (todos DoS o bypass, CVSS 6.3–6.9):
+- CVE-2026-125283: try_files + alias con una variable de map y capturas regex → segfault del worker.
+- CVE-2026-120993: módulo stream con certificados dinámicos + proxy_protocol v2.
+- CVE-2026-123640: ngx_stream_ssl_preread_module (ssl_preread on;).
+- CVE-2026-120967: ssl_verify_client on en un servidor stream no predeterminado.
 
-Entrega: versiones antes y después y resultado de build y tests.</pre>
-  </div>
-</article>
-<article class="proj done" id="torneospro">
-  <div class="proj-head"><h3>torneospro</h3><span class="pill p-done">resuelto</span><span class="stack">antes: crítico · main 8ffc30c</span></div>
-  <div class="finding"><div class="k">Avance</div><div>Next 16.4.6, sharp 0.35.5, xlsx 0.20.3 desde el CDN de SheetJS con tope de 2 MB, y zod, postcss, nanoid, ws y uuid actualizados. Según PENDIENTES.md ya está en producción. De 85 avisos a 2.</div><div class="k">Restante</div><div>Los 2 avisos de xlsx (CVE-2023-30533, CVE-2024-22363) son un <strong>falso positivo</strong>: OSV no registra corrección en npm porque SheetJS dejó de publicar ahí, pero el lockfile resuelve a <code>cdn.sheetjs.com/xlsx-0.20.3</code>, que corrige ambos (desde 0.19.3 y 0.20.2).</div><div class="k">Supabase</div><div>Migración 084 aplicada en prod: el aviso de <code>search_path</code> desapareció y la protección de contraseñas filtradas ya está activa. <code>is_organizer</code> sigue ejecutable por <code>anon</code> <strong>a propósito</strong>: la migración explica que revocarlo rompería las lecturas públicas y que para <code>anon</code> siempre devuelve false. El arreglo de fondo (políticas <code>TO authenticated</code>) quedó en PENDIENTES. Las 7 tablas con RLS sin políticas son informativas.</div></div>
-</article>
-<article class="proj done" id="axelo">
-  <div class="proj-head"><h3>axelo</h3><span class="pill p-done">resuelto</span><span class="stack">antes: alto · desplegado a producción</span></div>
-  <div class="finding"><div class="k">Avance</div><div>Sin hallazgos en las 282 dependencias: react-router, grpc, chi, pgx, go-pkcs12, otel y vite actualizados; el commit dice que ya está desplegado. Falta revisar el NGINX de su servidor (arriba).</div></div>
-</article>
-<article class="proj done" id="rejovi">
-  <div class="proj-head"><h3>rejovi-admin</h3><span class="pill p-done">resuelto</span><span class="stack">antes: por confirmar · nginx 1.24.0-2ubuntu7.20</span></div>
-  <div class="finding"><div class="k">Avance</div><div>NGINX del droplet parchado con apt: <code>1.24.0-2ubuntu7.19 → 7.20</code> corrige CVE-2026-118899, sin medida temporal de TLS. HTTP/2 y HTTP/3 no se usan, así que CVE-2026-123007 no aplica. Dependencias sin hallazgos.</div><div class="k">Pendiente menor</div><div>El commit de documentación está en <code>dev</code>; sube a <code>main</code> con el próximo merge.</div></div>
+Pasos:
+1. nginx -v (debe ser 1.24.0-2ubuntu7.20 o posterior); apt changelog nginx 2&gt;/dev/null | head -60 y busca esos 4 CVE.
+2. grep -rn &quot;stream {\|ssl_preread\|ssl_verify_client\|proxy_protocol\|try_files\|alias\|map &quot; /etc/nginx/ y dime, por CVE, si la configuración lo activa (archivo:línea).
+3. Revisa si unattended-upgrades solo instala -security (cat /etc/apt/apt.conf.d/50unattended-upgrades | grep -A5 Allowed-Origins). En axelo se vio que el parche de nginx llegó por noble-updates y no se instaló solo. Propón (no apliques) cómo cubrirlo, por ejemplo agregando &quot;${distro_id}:${distro_codename}-updates&quot; solo para nginx con Unattended-Upgrade::Package-Whitelist, o una alerta semanal de apt list --upgradable.
+4. Anota el resultado en PENDIENTES.md del repo correspondiente (rama dev donde aplique) y haz commit &quot;docs(ops): ...&quot;.
+
+Entrega: tabla CVE → aplica / no aplica / cubierto por 7.20, con la evidencia, y la propuesta para unattended-upgrades.</pre></div>
 </article>
 
 </section>
-
+<section style="display:flex;flex-direction:column;gap:16px">
+  <h2>Resuelto</h2>
+  <div class="done-list"><article class="proj done" id=""><div class="proj-head"><h3>tracpeak-greenfield</h3><span class="pill p-done">resuelto</span><span class="stack">0 avisos · producción 75ba4bd</span></div><div class="finding"><div class="k">Hecho</div><div>otel 1.47.0 y las dependencias de desarrollo de la UI actualizadas; release a producción <code>2bf25ec → 75ba4bd</code>.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>piixan-bi</h3><span class="pill p-done">resuelto</span><span class="stack">producción a56eae4</span></div><div class="finding"><div class="k">Hecho</div><div>En producción desde el 19-nov: Python 3.12, FastAPI 0.165, cryptography 50, pyarrow 23, next 16.4.6, next-auth 4.24.15. Quedan 2 avisos de python-jose sin corrección que <strong>no aplican</strong> (son de verificación JWS; el código solo descifra JWE).</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>piixan-ai-coupons</h3><span class="pill p-done">resuelto</span><span class="stack">0 avisos · main 793f5a1</span></div><div class="finding"><div class="k">Hecho</div><div>filelock 4.2.12, msgpack 1.2.4, vitest y vite actualizados; además, las imágenes de terceros quedaron fijadas por digest en compose y CI (PR #1).</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>torneospro</h3><span class="pill p-done">resuelto</span><span class="stack">2 avisos (falso positivo)</span></div><div class="finding"><div class="k">Hecho</div><div>Next 16.4.6, sharp 0.35.5, xlsx 0.20.3 del CDN de SheetJS. Los 2 avisos de xlsx son de la versión de npm, no de la del CDN. Supabase: sin cambios desde la mañana; <code>is_organizer</code> sigue ejecutable por <code>anon</code> a propósito (migración 084).</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>NGINX de torneospro</h3><span class="pill p-done">resuelto</span><span class="stack">1.24.0-2ubuntu7.20</span></div><div class="finding"><div class="k">Hecho</div><div>Solo aplicaba CVE-2026-118899 (TLS 1.3). Ningún sitio tiene <code>http2</code> ni <code>quic</code>, así que <strong>CVE-2026-123007 no aplica</strong>. Sin cambios de configuración.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>NGINX de axelo</h3><span class="pill p-done">resuelto</span><span class="stack">1.24.0-2ubuntu7.20</span></div><div class="finding"><div class="k">Hecho</div><div>Parchado a las 05:15 UTC; <code>/health</code> 200 y webhook de WhatsApp verificados. Sin HTTP/2, HTTP/3, mail, SSI ni mirror: <strong>CVE-2026-123007 no aplica</strong>.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>axelo</h3><span class="pill p-done">resuelto</span><span class="stack">0 avisos</span></div><div class="finding"><div class="k">Hecho</div><div>Dependencias de Go y del dashboard corregidas y en producción.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>rejovi-admin</h3><span class="pill p-done">resuelto</span><span class="stack">0 avisos · nginx 7.20</span></div><div class="finding"><div class="k">Hecho</div><div>Dependencias limpias y NGINX parchado desde el 19-nov.</div></div></article>
+</div>
+</section>
 <footer>
   <h3 style="color:var(--fg)">Qué no se verificó</h3>
-  <p>Solo veo lo que está en GitHub: el trabajo local sin push no aparece. Que un cambio esté en <code>main</code> no prueba que el servidor lo esté sirviendo; para torneospro, tracpeak-greenfield y axelo me baso en lo que dicen sus commits y PENDIENTES. Los servidores NGINX de torneospro y axelo no se pueden revisar desde aquí: requieren SSH desde tu equipo. Las imágenes Docker se revisan por etiqueta.</p>
-  <p>Generado por el agente <span class="mono">vuln-auditor</span> de <span class="mono">vicboraco/vuln-watch</span>, sin modificar ningún proyecto revisado. Informe anterior: 19 nov 2026.</p>
+  <p>Solo veo lo que está en GitHub: el trabajo local sin push no aparece. Que un servidor sirva la versión corregida lo tomo de los commits y PENDIENTES de cada repo; no tengo acceso SSH. Las imágenes Docker se revisan por etiqueta. Las ramas <code>security/*</code> de piixan-bi son de agosto y no se escanearon.</p>
+  <p>Generado por el agente <span class="mono">vuln-auditor</span> de <span class="mono">vicboraco/vuln-watch</span>, sin modificar ningún proyecto revisado. Revisiones anteriores: 19 nov y 20 nov (mañana).</p>
 </footer>
 </div>
 <script>
