@@ -294,6 +294,8 @@ if __name__ == "__main__":
     ap.add_argument("--out", required=True)
     ap.add_argument("--cve")
     ap.add_argument("--recent-days", type=int, default=0, help="also list NVD CVEs published in the last N days for infra products")
+    ap.add_argument("--servers", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "projects.json"),
+                    help="projects.json with a 'servers' list whose software is also checked against recent NVD CVEs")
     ap.add_argument("--min-severity", default="MEDIUM", choices=["LOW", "MEDIUM", "HIGH", "CRITICAL"])
     a = ap.parse_args()
     if a.cve:
@@ -301,7 +303,14 @@ if __name__ == "__main__":
     else:
         result = {"projects": [scan_project(r, a.min_severity) for r in a.roots]}
         if a.recent_days:
-            result["infra_products"] = products_from_infra(result["projects"])
+            extra = []
+            if a.servers and os.path.exists(a.servers):
+                for srv in json.load(open(a.servers)).get("servers", []):
+                    for sw in srv.get("software", []):
+                        m = re.match(r"[a-zA-Z][a-zA-Z0-9.-]+", sw)
+                        if m:
+                            extra.append(m.group(0).lower())
+            result["infra_products"] = sorted(set(products_from_infra(result["projects"])) | set(extra))
             result["recent_infra_cves"] = recent_cves(result["infra_products"], a.recent_days)
     json.dump(result, open(a.out, "w"), indent=1, default=list)
     if not a.cve:
