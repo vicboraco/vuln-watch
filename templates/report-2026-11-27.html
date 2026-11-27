@@ -1,0 +1,180 @@
+<title>Boletín de vulnerabilidades</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: security bulletin — verdict header, triage table, then one stripe-coded section per project */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#16191f; --muted:#5a6270; --line:#dde1e7; --code-bg:#eef1f5;
+  --accent:#2f5bd3;
+  --crit:#c4262e; --crit-bg:#fbe9ea; --high:#c25a00; --high-bg:#fdf0e3; --med:#8a6d00; --med-bg:#fbf5dc;
+  --low:#3c7a4a; --low-bg:#e6f3e9; --tbd:#5b4bb7; --tbd-bg:#eeebfa; --ok:#4f5866; --ok-bg:#eceef2;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111418; --surface:#181c22; --fg:#e7eaf0; --muted:#9aa3b2; --line:#2a3039; --code-bg:#222831; --accent:#7d9cf0;
+  --crit:#ff7a80; --crit-bg:#3a1c1f; --high:#ffad66; --high-bg:#3a2715; --med:#e6c74d; --med-bg:#332c12;
+  --low:#7fcf91; --low-bg:#17301d; --tbd:#b3a6ff; --tbd-bg:#28224a; --ok:#aab2bf; --ok-bg:#242a33; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111418; --surface:#181c22; --fg:#e7eaf0; --muted:#9aa3b2; --line:#2a3039; --code-bg:#222831; --accent:#7d9cf0;
+  --crit:#ff7a80; --crit-bg:#3a1c1f; --high:#ffad66; --high-bg:#3a2715; --med:#e6c74d; --med-bg:#332c12;
+  --low:#7fcf91; --low-bg:#17301d; --tbd:#b3a6ff; --tbd-bg:#28224a; --ok:#aab2bf; --ok-bg:#242a33; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 var(--sans);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+h1,h2,h3{text-wrap:balance;line-height:1.25;margin:0}
+h1{font-size:1.9rem;font-weight:700}
+h2{font-size:1.3rem;font-weight:600}
+h3{font-size:1.05rem;font-weight:600}
+p{margin:0;max-width:70ch}
+a{color:var(--accent)}
+code,.mono{font-family:var(--mono);font-size:.86em}
+code{background:var(--code-bg);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+pre{background:var(--code-bg);padding:10px 12px;border-radius:6px;overflow-x:auto;margin:0;font:13px/1.5 var(--mono)}
+.eyebrow{font:500 .75rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 20px;color:var(--muted);font-size:.9rem}
+.verdict{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.verdict .cve{font:600 1rem var(--mono)}
+.pill{display:inline-block;font:600 .72rem var(--mono);letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.p-crit{color:var(--crit);background:var(--crit-bg)} .p-high{color:var(--high);background:var(--high-bg)}
+.p-med{color:var(--med);background:var(--med-bg)} .p-low{color:var(--low);background:var(--low-bg)}
+.p-tbd{color:var(--tbd);background:var(--tbd-bg)} .p-ok{color:var(--ok);background:var(--ok-bg)}
+.counts{display:flex;flex-wrap:wrap;gap:8px}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.92rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td a{text-decoration:none;font-weight:600}
+.proj{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.proj.crit{border-left-color:var(--crit)} .proj.high{border-left-color:var(--high)} .proj.med{border-left-color:var(--med)}
+.proj.tbd{border-left-color:var(--tbd)} .proj.low{border-left-color:var(--low)}
+.proj-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.proj-head .stack{color:var(--muted);font-size:.88rem}
+.finding{display:grid;grid-template-columns:110px 1fr;gap:6px 14px;padding-top:12px;border-top:1px solid var(--line)}
+.finding>div{min-width:0}
+.finding .k{font:500 .72rem var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.finding ul{margin:0;padding-left:18px}
+.ids{font:400 .8rem var(--mono);color:var(--muted);overflow-wrap:anywhere}
+.note{color:var(--muted);font-size:.9rem}
+footer{color:var(--muted);font-size:.88rem;display:flex;flex-direction:column;gap:8px}
+.prompt{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.prompt-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.prompt .k{font:500 .72rem var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.prompt-text{max-height:260px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid var(--line)}
+.copy{font:600 .85rem var(--sans);color:var(--surface);background:var(--accent);border:0;border-radius:6px;padding:7px 14px;cursor:pointer}
+.copy:hover{filter:brightness(1.08)}
+.copy:focus-visible,.prompt-text:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.p-done{color:var(--low);background:var(--low-bg)} .p-prog{color:var(--accent);background:var(--code-bg)} .p-low{color:var(--low);background:var(--low-bg)}
+.delta{font:500 .8rem var(--mono);color:var(--muted);white-space:nowrap}
+.proj.done{border-left-color:var(--low)} .proj.prog{border-left-color:var(--accent)}
+.done-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
+.done-list .proj{padding:16px}
+.copy.done{background:var(--low)}
+@media (max-width:560px){.finding{grid-template-columns:1fr}.finding .k{padding-top:6px}}
+</style>
+<div class="wrap">
+<header>
+  <span class="eyebrow">vuln-watch · revisión de seguimiento</span>
+  <h1>Boletín de vulnerabilidades</h1>
+  <div class="meta"><span>27 nov 2026, 06:50 CDMX · revisión diaria (estado de proyectos verificado hoy)</span><span>Ramas main y dev de los 12 repos · Supabase Torneos-Pro</span><span>Umbral: CVSS ≥ 4.0</span><span>Fuentes: OSV.dev, NVD, CVE.org, CISA KEV</span></div>
+</header>
+<section class="verdict">
+  <span class="eyebrow">Avance</span>
+  <div class="cve">10 de 10 proyectos sin riesgo alto ni crítico · nuevo el 27-nov: Traefik en piixan-ai-coupons (servidor en pausa)</div>
+  <p><strong>Novedad del 27 nov:</strong> 4 CVE nuevos de Traefik; solo CVE-2026-137481 aplica, en piixan-ai-coupons, y hoy no hay exposición porque el servidor está en pausa. Del 24 al 26 nov no hubo cambios: los commits fueron de operación (SSH solo con llave, fail2ban, respaldos, puerto 3000 cerrado en torneospro) y los CVE nuevos no te aplicaban (Grafana Enterprise SAML, <code>docker cp</code>).</p>
+  <p><strong>Ya están parchados los 4 proyectos que faltaban:</strong> preguntale-a-licha, torneospro-web (migrado a Astro 7), coach-pro y piixan-landing. De 790 avisos el 19-nov a <strong>6</strong> hoy, y de esos 6, 4 no aplican (python-jose en piixan-bi y xlsx en torneospro). <strong>CVE-2026-123007 sigue descartado</strong> en los tres servidores.</p>
+  <p><strong>Lo que queda:</strong> un aviso medio en coach-pro (<code>uuid</code>) y otro en preguntale-a-licha (<code>minimatch</code>), ambos de riesgo bajo. Además, un CVE nuevo de NGINX de hoy que casi seguro no aplica (CVE-2026-132779, <code>ssl_early_data</code>), y la saturación de NGINX en rejovi-admin por un bot de escaneo, que se resuelve con límites de peticiones por IP.</p>
+</section>
+<section style="display:flex;flex-direction:column;gap:12px">
+  <h2>Resumen por proyecto</h2>
+  <div class="counts"><span class="pill p-done">10 repos sin riesgo alto</span><span class="pill p-med">1 Traefik por actualizar</span><span class="pill p-low">2 avisos bajos</span><span class="pill p-med">1 endurecimiento de NGINX</span><span class="pill p-tbd">1 CVE de NGINX por confirmar</span></div>
+  <div class="tbl"><table><thead><tr><th>Proyecto</th><th>19 nov</th><th>20 nov</th><th>23 nov</th><th>Avisos en producción</th><th>Siguiente paso</th></tr></thead><tbody><tr><td><a href="#traefik">piixan-ai-coupons: Traefik 3.1</a></td><td>—</td><td>—</td><td><span class="pill p-med">medio</span></td><td class="delta">—</td><td>Actualizar antes de reactivar</td></tr><tr><td><a href="#rejovi-rate">rejovi-admin: saturación de NGINX</a></td><td>—</td><td>—</td><td><span class="pill p-med">medio</span></td><td class="delta">—</td><td>Limitar peticiones por IP</td></tr><tr><td><a href="#nginx-early">NGINX: CVE-2026-132779</a></td><td>—</td><td>—</td><td><span class="pill p-tbd">por confirmar</span></td><td class="delta">—</td><td>Un grep en cada servidor</td></tr><tr><td><a href="#deps-min">coach-pro</a></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-low">bajo</span></td><td class="delta">51 → 55 → 1</td><td>Cerrar uuid</td></tr><tr><td><a href="#deps-min">preguntale-a-licha</a></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-low">bajo</span></td><td class="delta">39 → 43 → 1</td><td>Cerrar minimatch</td></tr><tr><td>torneospro-web</td><td><span class="pill p-high">alto</span></td><td><span class="pill p-high">alto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">55 → 55 → 0</td><td>Nada</td></tr><tr><td>piixan-landing</td><td><span class="pill p-med">medio</span></td><td><span class="pill p-med">medio</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">52 → 56 → 0</td><td>Nada</td></tr><tr><td>tracpeak-greenfield</td><td><span class="pill p-crit">crítico</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">254 → 0 → 0</td><td>Nada</td></tr><tr><td>piixan-bi</td><td><span class="pill p-crit">crítico</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">155 → 2 → 2*</td><td>Nada (*no aplican)</td></tr><tr><td>piixan-ai-coupons</td><td><span class="pill p-med">medio</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">22 → 0 → 0</td><td>Nada</td></tr><tr><td>torneospro</td><td><span class="pill p-crit">crítico</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">85 → 2 → 2*</td><td>Nada (*falso positivo)</td></tr><tr><td>axelo</td><td><span class="pill p-high">alto</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">77 → 0 → 0</td><td>Nada</td></tr><tr><td>rejovi-admin</td><td><span class="pill p-tbd">por confirmar</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">0 → 0 → 0</td><td>Ver la saturación de NGINX</td></tr><tr><td>NGINX de los 3 servidores</td><td><span class="pill p-tbd">por confirmar</span></td><td><span class="pill p-done">resuelto</span></td><td><span class="pill p-done">resuelto</span></td><td class="delta">—</td><td>CVE-2026-123007 no aplica</td></tr><tr><td>docs, mintlify-docs</td><td><span class="pill p-ok">sin hallazgos</span></td><td><span class="pill p-ok">sin hallazgos</span></td><td><span class="pill p-ok">sin hallazgos</span></td><td class="delta">0</td><td>Nada</td></tr></tbody></table></div>
+  <p class="note">Los avisos se cuentan por paquete, versión y archivo, para comparar entre revisiones. El 19-nov sumaban 790 en los 10 repos con código; hoy, 6.</p>
+</section>
+<section style="display:flex;flex-direction:column;gap:16px">
+  <h2>Pendiente</h2>
+  <p class="note">Cada tarjeta trae el prompt listo para pegar en una sesión de Claude Code abierta en ese repo.</p>
+  <article class="proj med" id="traefik"><div class="proj-head"><h3>piixan-ai-coupons: Traefik 3.1</h3><span class="pill p-med">medio</span><span class="stack">nuevo · 27 nov · servidor en pausa</span></div><div class="finding"><div class="k">Hallazgo</div><div>El 26-nov se publicaron 4 CVE de Traefik corregidos en <strong>3.7.18</strong>. piixan-ai-coupons usa <code>traefik:v3.1</code>. Solo le aplica <strong>CVE-2026-137481</strong> (CVSS 7.8): con rutas como <code>/..;x/</code>, una petición puede caer en otro router. Aquí podría esquivar el límite estricto de <code>/v1/token</code>. Los otros tres (Compress, ForwardAuth, BasicAuth) no aplican porque esos middlewares no se usan.</div><div class="k">Exposición hoy</div><div><strong>Ninguna:</strong> el servidor está en pausa desde el 25-nov (<code>docs/runbooks/pausa.md</code>), y aun encendido Traefik solo escucha en <code>127.0.0.1</code>, detrás de Caddy. Hay que actualizarlo <strong>antes de reactivar</strong> el servidor.</div></div><div class="prompt"><div class="prompt-head"><span class="k">Prompt de parche</span><button type="button" class="copy" id="copy-traefik" data-target="prompt-traefik">Copiar prompt</button></div><pre class="prompt-text" id="prompt-traefik" tabindex="0">Tarea: actualizar Traefik en piixan-ai-coupons (informe vuln-watch del 27-nov-2026). El servidor está en pausa desde el 25-nov (docs/runbooks/pausa.md), así que hoy no hay exposición: esto se hace antes de volver a encenderlo. Trabaja en una rama fix/traefik y no despliegues.
+
+Contexto: docker-compose.yml usa traefik:v3.1@sha256:74d72c7a…. El 26-nov se publicaron 4 CVE de Traefik, corregidos en 3.7.18 (y 2.11.62):
+- CVE-2026-137481 (CVSS 7.8): sanitizePath deja segmentos &quot;/..;x/&quot; sin resolver al elegir router. Aquí los routers se separan por ruta (/consola, /v1, /salud y /v1/token con un límite más estricto, priority 100), así que una ruta manipulada podría caer en otro router y saltarse limite-token. Es el único que aplica.
+- CVE-2026-137479 (Compress, zstd), CVE-2026-137478 (ForwardAuth con NTLM/Negotiate) y CVE-2026-137482 (BasicAuth): no aplican, no se usan esos middlewares (confírmalo con grep en pasarela/).
+
+Pasos:
+1. Elige la última 3.7.x (≥ 3.7.18) y su digest: docker buildx imagetools inspect traefik:v3.7.18 (o la más reciente) y fija image: traefik:v3.7.X@sha256:… en docker-compose.yml; revisa si docker-compose.seguro.yml o la CI fijan otra versión y alinéalas.
+2. Revisa las notas de migración de Traefik 3.1 → 3.7 contra pasarela/traefik.yml, traefik.seguro.yml, dinamico.yml y dinamico.seguro.yml (rateLimit, buffering, headers, serversTransports con mTLS, forwardedHeaders.trustedIPs, ping).
+3. Prueba en local: docker compose up -d traefik api consola (y el perfil seguro si aplica); comprueba /salud, /consola, /v1/... y que /v1/token siga aplicando limite-token; prueba que /v1/..;x/token y /consola/..;x/v1/token NO esquiven el router de token (deben dar 4xx o caer en limite-token).
+4. Agrega en docs/runbooks/pausa.md, en los pasos de vuelta, &quot;Traefik actualizado a 3.7.X (CVE-2026-137481)&quot; y en docs/Pendientes.md el registro. Commit &quot;seguridad: traefik 3.7.X (CVE-2026-137481)&quot; y deja la rama lista para PR.
+
+Entrega: versión y digest nuevos, diferencias de configuración que hicieron falta y resultado de las pruebas de rutas.</pre></div></article>
+
+  <article class="proj med" id="rejovi-rate"><div class="proj-head"><h3>rejovi-admin: escáneres saturan NGINX</h3><span class="pill p-med">medio</span><span class="stack">hallazgo operativo del 20-nov · no es un CVE</span></div><div class="finding"><div class="k">Hallazgo</div><div>Según PENDIENTES.md, el 20-nov a las 9:27 una sola IP (<code>3.85.91.123</code>) mandó 4,073 peticiones en un minuto buscando respaldos (<code>/*.zip</code>). Agotó las 768 conexiones de NGINX, que respondió 500 también a usuarios reales. Es denegación de servicio por volumen, no una vulnerabilidad de software: no hay límite de peticiones por IP.</div><div class="k">Propuesta</div><div><code>limit_req</code> y <code>limit_conn</code> por IP, <code>worker_connections</code> a 2048 y un 444 para rutas de escaneo. El prompt pide el diff y tu OK antes de tocar el servidor.</div></div><div class="prompt"><div class="prompt-head"><span class="k">Prompt de endurecimiento</span><button type="button" class="copy" id="copy-rejovi-rate" data-target="prompt-rejovi-rate">Copiar prompt</button></div><pre class="prompt-text" id="prompt-rejovi-rate" tabindex="0">Tarea: proponer e implementar, con mi aprobación, la limitación por IP en NGINX que quedó en PENDIENTES.md (&quot;Escáneres saturan nginx&quot;, 20-nov-2026: 4,073 peticiones en un minuto desde 3.85.91.123 agotaron las 768 conexiones y nginx devolvió 500, también a usuarios reales). Trabaja en dev. El servidor es producción y staging a la vez: nada en el droplet sin mi OK.
+
+1. Diseña los cambios en deploy/nginx/rejovi-http.conf y en los server de admin y dev-admin:
+   - limit_req_zone $binary_remote_addr zone=porip:10m rate=10r/s; y limit_req zone=porip burst=40 nodelay; en las location de la app. Deja /auth/callback y los assets de /_next/static con un burst mayor o sin límite si hace falta (el login con Microsoft hace varias redirecciones seguidas).
+   - limit_conn_zone $binary_remote_addr zone=connip:10m; limit_conn connip 30;
+   - limit_req_status 429; limit_conn_status 429;
+   - worker_connections 768 → 2048 en nginx.conf (revisa ulimit -n del proceso; worker_rlimit_nofile si hace falta).
+   - Opcional: un bloque que devuelva 444 a rutas de escaneo obvias (\.(zip|tar|gz|sql|bak|env)$) sin tocar descargas legítimas de la app (revisa que /inventario/*/exportar no use esas extensiones).
+2. Muéstrame el diff y explícame el efecto en el login, la exportación de Excel y el cron semanal (POST /api/cron/*, que viene de localhost: exclúyelo con geo/map si hace falta).
+3. Con mi OK: copia al servidor, nginx -t, systemctl reload nginx. Verifica el login en dev-admin.rejovi.com, una exportación y que 50 peticiones seguidas desde tu máquina reciban 429 al pasar el límite.
+4. Documenta en FORK.md (sección nginx) y PENDIENTES.md; commit &quot;fix(infra): ...&quot; en dev.
+
+Entrega: diff, resultado de nginx -t y de las pruebas.</pre></div>
+</article>
+<article class="proj tbd" id="nginx-early"><div class="proj-head"><h3>NGINX: CVE-2026-132779 (TLS 1.3 early data)</h3><span class="pill p-tbd">por confirmar</span><span class="stack">rejovi-admin, torneospro, axelo · publicado el 23-nov</span></div><div class="finding"><div class="k">Hallazgo</div><div><strong>CVE-2026-132779</strong> (CVSS 6.9, verificado en NVD): solo aplica con <code>ssl_early_data on;</code>. Certbot no lo activa y las configuraciones de NGINX del repo de rejovi-admin no lo usan, así que lo más probable es que <strong>no aplique en ningún servidor</strong>. Basta un <code>nginx -T | grep ssl_early_data</code> en cada uno para confirmarlo.</div><div class="k">Versión</div><div>rejovi-admin instaló a mano <code>1.24.0-2ubuntu7.21</code> (corrige CVE-2026-125283 y 123640). En torneospro, la 7.21 se iba a instalar sola el sábado 21-nov: el prompt lo confirma. Los otros 2 CVE medios (módulo <code>stream</code>) no aplican: Ubuntu marca 1.24.0 como no afectada.</div></div><div class="prompt"><div class="prompt-head"><span class="k">Prompt de verificación (uno por servidor)</span><button type="button" class="copy" id="copy-nginx-early" data-target="prompt-nginx-early">Copiar prompt</button></div><pre class="prompt-text" id="prompt-nginx-early" tabindex="0">Tarea: verificación rápida del NGINX de este servidor (informe vuln-watch del 23-nov-2026). Solo lectura; no cambies nada sin mi OK.
+
+1. CVE-2026-132779 (CVSS 6.9, publicado el 23-nov): con &quot;ssl_early_data on;&quot; (TLS 1.3 early data / 0-RTT), una conexión manipulada puede llevar a un worker a un estado que lo tumba. Certbot no lo activa por defecto. Ejecuta: nginx -T 2&gt;/dev/null | grep -n &quot;ssl_early_data&quot; y dime si aparece. Si no aparece, no aplica.
+2. Confirma la versión: dpkg-query -W nginx nginx-common (esperado 1.24.0-2ubuntu7.21 o posterior, que corrige CVE-2026-125283 y 123640) y systemctl is-active nginx.
+3. apt changelog nginx 2&gt;/dev/null | head -40: ¿Ubuntu ya menciona CVE-2026-132779?
+4. Anota el resultado en PENDIENTES.md (rama dev si existe) con commit &quot;docs(ops): ...&quot;.
+
+Entrega: si aplica o no CVE-2026-132779 (con la evidencia), versión instalada y qué dice el changelog.</pre></div>
+</article>
+<article class="proj low" id="deps-min"><div class="proj-head"><h3>coach-pro y preguntale-a-licha: 1 aviso cada uno</h3><span class="pill p-low">bajo</span><span class="stack">antes: alto · casi resuelto</span></div><div class="finding"><div class="k">coach-pro</div><div><code>uuid</code> 9.0.1, transitiva (CVE-2026-41907, medio). Solo importa si se llama a v3/v5/v6 pasando un <code>buf</code>; el proyecto no importa <code>uuid</code> directamente.</div><div class="k">licha</div><div><code>minimatch</code> 10.2.6 (CVE-2026-118764, DoS con patrones glob, medio). Se usa en herramientas de build, no con entrada de usuarios.</div></div><div class="prompt"><div class="prompt-head"><span class="k">Prompt para cerrar los dos avisos</span><button type="button" class="copy" id="copy-deps-min" data-target="prompt-deps-min">Copiar prompt</button></div><pre class="prompt-text" id="prompt-deps-min" tabindex="0">Tarea: cerrar el último aviso de dependencias de este repo (informe vuln-watch del 23-nov-2026). Riesgo bajo; no despliegues.
+
+- coach-pro: uuid 9.0.1 (CVE-2026-41907, falta de verificación de límites en v3/v5/v6 cuando se pasa buf). Es transitiva: npm ls uuid para ver quién la trae; npm update uuid o &quot;overrides&quot;: {&quot;uuid&quot;: &quot;^11.1.1&quot;} si la dependencia lo permite (comprueba que el paquete que la usa no se rompa con uuid 11, que es ESM-first).
+- preguntale-a-licha: minimatch 10.2.6 (CVE-2026-118764, DoS por amplificación de globparts). npm ls minimatch; npm update minimatch o &quot;overrides&quot;: {&quot;minimatch&quot;: &quot;^11.0.1&quot;}.
+
+Pasos: npm ls del paquete, actualizar, npm ls otra vez, lint/typecheck/build y tests del repo. Commit &quot;fix(deps): ...&quot; y avísame antes de push (en ambos el push puede desplegar en Vercel).
+
+Entrega: quién traía el paquete, versión antes y después y resultado de build y tests.</pre></div>
+</article>
+
+</section>
+<section style="display:flex;flex-direction:column;gap:16px">
+  <h2>Resuelto</h2>
+  <div class="done-list"><article class="proj done" id=""><div class="proj-head"><h3>preguntale-a-licha</h3><span class="pill p-done">resuelto</span><span class="stack">43 → 1</span></div><div class="finding"><div class="k">Hecho</div><div>next 16.4.6, sharp, node-forge, compression y shell-quote corregidos; Expo SDK 57 al último parche.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>torneospro-web</h3><span class="pill p-done">resuelto</span><span class="stack">55 → 0</span></div><div class="finding"><div class="k">Hecho</div><div>Migrado a <strong>Astro 7.4</strong> junto con la landing v2; <code>parse5</code>, devalue y vite actualizados con la migración.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>coach-pro</h3><span class="pill p-done">resuelto</span><span class="stack">55 → 1</span></div><div class="finding"><div class="k">Hecho</div><div>next 16.4.6, sharp 0.35.5 y ws corregidos.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>piixan-landing</h3><span class="pill p-done">resuelto</span><span class="stack">56 → 0</span></div><div class="finding"><div class="k">Hecho</div><div>next 16.4.6 y sharp 0.35.5.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>tracpeak-greenfield</h3><span class="pill p-done">resuelto</span><span class="stack">0</span></div><div class="finding"><div class="k">Hecho</div><div>Sin cambios desde el 20-nov; en producción (75ba4bd).</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>piixan-bi</h3><span class="pill p-done">resuelto</span><span class="stack">2 (no aplican)</span></div><div class="finding"><div class="k">Hecho</div><div>Los 2 avisos de python-jose no tienen corrección y no aplican: el código solo descifra JWE.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>piixan-ai-coupons</h3><span class="pill p-done">resuelto</span><span class="stack">0</span></div><div class="finding"><div class="k">Hecho</div><div>Sin avisos; segundo ciclo de sombra del conector Shopify limpio.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>torneospro</h3><span class="pill p-done">resuelto</span><span class="stack">2 (falso positivo)</span></div><div class="finding"><div class="k">Hecho</div><div>xlsx del CDN de SheetJS. Supabase sin cambios: solo el aviso intencional de <code>is_organizer</code> y las 7 tablas informativas.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>axelo</h3><span class="pill p-done">resuelto</span><span class="stack">0</span></div><div class="finding"><div class="k">Hecho</div><div>Dependencias limpias; CVE medios de NGINX confirmados como no aplicables.</div></div></article>
+<article class="proj done" id=""><div class="proj-head"><h3>rejovi-admin</h3><span class="pill p-done">resuelto</span><span class="stack">0 · nginx 7.21</span></div><div class="finding"><div class="k">Hecho</div><div>Dependencias limpias y NGINX con el último parche de Ubuntu.</div></div></article>
+</div>
+</section>
+<section style="display:flex;flex-direction:column;gap:8px">
+  <h2>CVE nuevos de infraestructura (21–27 nov)</h2>
+  <p class="note">De las coincidencias de NVD, solo <strong>CVE-2026-132779</strong> (NGINX, arriba) afecta a software que usas. Los 8 CVE del driver JDBC de PostgreSQL (<code>pgjdbc</code>, CVE-2026-134841 a 134848) solo tocarían a la imagen <code>liquibase/liquibase:4.29</code> de tracpeak-greenfield, que corre las migraciones al desplegar y no recibe tráfico externo: riesgo bajo, se corrige cuando subas Liquibase. Del 24 al 27 nov: CVE-2026-137478/137479/137481/137482 de Traefik (arriba); CVE-2026-10084 (Grafana Enterprise con SAML, no aplica) y CVE-2026-135124 (Docker, solo con <code>docker cp</code> en un contenedor malicioso, no aplica). Ningún lockfile trae <code>cron-parser</code>, <code>msgpackr</code> (CVE-2026-134812) ni <code>binary-parser</code> (CVE-2026-134814), que la corrida de esta mañana dejó por cruzar. Para pm2, systemd, Docker, Caddy y Certbot no hubo CVE nuevos de esos productos (las coincidencias son de Dockhand, Heym, KindleEar y otros). Ningún CVE de la ventana está en CISA KEV. Desde hoy <code>scan.py</code> también busca CVE del software de la lista <code>servers</code> de <code>projects.json</code>.</p>
+</section>
+<footer>
+  <h3 style="color:var(--fg)">Qué no se verificó</h3>
+  <p>Solo veo lo que está en GitHub: el trabajo local sin push no aparece. Que un servidor sirva la versión corregida lo tomo de los commits y PENDIENTES de cada repo; no tengo acceso SSH. Las imágenes Docker se revisan por etiqueta.</p>
+  <p>Generado por la tarea diaria de <span class="mono">vicboraco/vuln-watch</span> (corre en la sesión de Claude Code), sin modificar ningún proyecto revisado. Revisiones anteriores: 19 y 20 nov. Las corridas automáticas del 20 al 23 nov a las 6:44 no tuvieron acceso a los repos privados ni a Supabase (la tarea vieja, ya pausada); esta revisión las reemplaza.</p>
+</footer>
+</div>
+<script>
+document.addEventListener('click',function(e){
+  var b=e.target.closest('.copy'); if(!b) return;
+  var pre=document.getElementById(b.dataset.target); var txt=pre.textContent;
+  function ok(){b.textContent='Copiado';b.classList.add('done');setTimeout(function(){b.textContent='Copiar prompt';b.classList.remove('done')},2000)}
+  function sel(){var r=document.createRange();r.selectNodeContents(pre);var s=window.getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Texto seleccionado: Ctrl/Cmd+C'}
+  try{navigator.clipboard.writeText(txt).then(ok,sel)}catch(err){sel()}
+});
+</script>
